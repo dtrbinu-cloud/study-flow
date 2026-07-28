@@ -10,13 +10,6 @@
 </p>
 
 ---
-
-## 📖 Deskripsi
-
-**StudyFlow** adalah backend API berbasis Laravel yang membantu pengguna mengelola jadwal belajar mereka. Mendukung autentikasi berbasis token (Laravel Sanctum), manajemen mata pelajaran (subjects), dan penjadwalan sesi belajar (schedules).
-
----
-
 ## 🛠️ Tech Stack
 
 | Teknologi | Versi | Kegunaan |
