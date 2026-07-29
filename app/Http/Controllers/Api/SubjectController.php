@@ -14,7 +14,7 @@ class SubjectController extends Controller
     // GET /api/subjects
     public function index(Request $request)
     {
-        // hanya subject milik user yang login
+        // subject milik user yang login
         $subjects = $request->user()
             ->subjects()
             ->withCount('schedules')
@@ -40,7 +40,7 @@ class SubjectController extends Controller
     // PUT /api/subjects/{id}
     public function update(UpdateSubjectRequest $request, Subject $subject)
     {
-        // pastikan subject ini benar-benar milik user yang login
+        // subject ini milik user yang login
         if ($subject->user_id !== $request->user()->id) {
             return response()->json(['message' => 'Tidak diizinkan'], 403);
         }
