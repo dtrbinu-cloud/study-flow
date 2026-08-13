@@ -7,19 +7,19 @@ use App\Http\Requests\StoreScheduleRequest;
 use App\Http\Requests\UpdateScheduleRequest;
 use App\Http\Resources\ScheduleResource;
 use App\Models\Schedule;
+use App\Services\ScheduleService;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
+    public function __construct(
+        protected ScheduleService $scheduleService
+    ) {}
+
     // GET /api/schedules
     public function index(Request $request)
     {
-        $schedules = $request->user()
-            ->schedules()
-            ->with('subject')
-            ->orderBy('study_date')
-            ->orderBy('start_time')
-            ->get();
+        $schedules = $this->scheduleService->getAll($request->user());
 
         return response()->json([
             'data' => ScheduleResource::collection($schedules),
@@ -29,8 +29,7 @@ class ScheduleController extends Controller
     // POST /api/schedules
     public function store(StoreScheduleRequest $request)
     {
-        $schedule = $request->user()->schedules()->create($request->validated());
-        $schedule->load('subject');
+        $schedule = $this->scheduleService->create($request->user(), $request->validated());
 
         return response()->json([
             'message' => 'Jadwal belajar berhasil dibuat',
@@ -41,11 +40,7 @@ class ScheduleController extends Controller
     // GET /api/schedules/{id}
     public function show(Request $request, Schedule $schedule)
     {
-        if ($schedule->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Tidak diizinkan'], 403);
-        }
-
-        $schedule->load('subject');
+        $schedule = $this->scheduleService->show($request->user(), $schedule);
 
         return response()->json([
             'data' => new ScheduleResource($schedule),
@@ -55,12 +50,7 @@ class ScheduleController extends Controller
     // PUT /api/schedules/{id}
     public function update(UpdateScheduleRequest $request, Schedule $schedule)
     {
-        if ($schedule->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Tidak diizinkan'], 403);
-        }
-
-        $schedule->update($request->validated());
-        $schedule->load('subject');
+        $schedule = $this->scheduleService->update($request->user(), $schedule, $request->validated());
 
         return response()->json([
             'message' => 'Jadwal belajar berhasil diperbarui',
@@ -71,11 +61,7 @@ class ScheduleController extends Controller
     // DELETE /api/schedules/{id}
     public function destroy(Request $request, Schedule $schedule)
     {
-        if ($schedule->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Tidak diizinkan'], 403);
-        }
-
-        $schedule->delete();
+        $this->scheduleService->delete($request->user(), $schedule);
 
         return response()->json([
             'message' => 'Jadwal belajar berhasil dihapus',

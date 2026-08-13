@@ -7,19 +7,19 @@ use App\Http\Requests\StoreSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
 use App\Http\Resources\SubjectResource;
 use App\Models\Subject;
+use App\Services\SubjectService;
 use Illuminate\Http\Request;
 
 class SubjectController extends Controller
 {
+    public function __construct(
+        protected SubjectService $subjectService
+    ) {}
+
     // GET /api/subjects
     public function index(Request $request)
     {
-        // subject milik user yang login
-        $subjects = $request->user()
-            ->subjects()
-            ->withCount('schedules')
-            ->latest()
-            ->get();
+        $subjects = $this->subjectService->getAll($request->user());
 
         return response()->json([
             'data' => SubjectResource::collection($subjects),
@@ -29,7 +29,7 @@ class SubjectController extends Controller
     // POST /api/subjects
     public function store(StoreSubjectRequest $request)
     {
-        $subject = $request->user()->subjects()->create($request->validated());
+        $subject = $this->subjectService->create($request->user(), $request->validated());
 
         return response()->json([
             'message' => 'Mata pelajaran berhasil dibuat',
@@ -40,12 +40,7 @@ class SubjectController extends Controller
     // PUT /api/subjects/{id}
     public function update(UpdateSubjectRequest $request, Subject $subject)
     {
-        // subject ini milik user yang login
-        if ($subject->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Tidak diizinkan'], 403);
-        }
-
-        $subject->update($request->validated());
+        $subject = $this->subjectService->update($request->user(), $subject, $request->validated());
 
         return response()->json([
             'message' => 'Mata pelajaran berhasil diperbarui',
@@ -56,11 +51,7 @@ class SubjectController extends Controller
     // DELETE /api/subjects/{id}
     public function destroy(Request $request, Subject $subject)
     {
-        if ($subject->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Tidak diizinkan'], 403);
-        }
-
-        $subject->delete();
+        $this->subjectService->delete($request->user(), $subject);
 
         return response()->json([
             'message' => 'Mata pelajaran berhasil dihapus',

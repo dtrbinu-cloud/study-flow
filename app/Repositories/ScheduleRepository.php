@@ -35,4 +35,4 @@ class ScheduleRepository
     {
         $schedule->delete();
     }
-}
+} 
