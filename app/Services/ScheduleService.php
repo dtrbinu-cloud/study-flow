@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Events\ScheduleWasCreated;
 use App\Models\Schedule;
 use App\Models\User;
 use App\Repositories\ScheduleRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class ScheduleService
 {
@@ -20,7 +22,13 @@ class ScheduleService
 
     public function create(User $user, array $data): Schedule
     {
-        return $this->scheduleRepository->create($user, $data);
+        $schedule = $this->scheduleRepository->create($user, $data);
+        Cache::forget("schedules:user:{$user->id}");
+
+        // Minggu 3: umumkan event, biar Listener yang urus reaksinya
+        ScheduleWasCreated::dispatch($schedule);
+
+        return $schedule;
     }
 
     public function show(User $user, Schedule $schedule): Schedule
@@ -33,13 +41,16 @@ class ScheduleService
     public function update(User $user, Schedule $schedule, array $data): Schedule
     {
         $this->authorizeOwnership($user, $schedule);
-        return $this->scheduleRepository->update($schedule, $data);
+        $updated = $this->scheduleRepository->update($schedule, $data);
+        Cache::forget("schedules:user:{$user->id}");
+        return $updated;
     }
 
     public function delete(User $user, Schedule $schedule): void
     {
         $this->authorizeOwnership($user, $schedule);
         $this->scheduleRepository->delete($schedule);
+        Cache::forget("schedules:user:{$user->id}");
     }
 
     protected function authorizeOwnership(User $user, Schedule $schedule): void

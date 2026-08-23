@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyFlow — Buku Rencana Belajar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ TOAST NOTIFICATION ============ -->
+<div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+
+<!-- ============ HALAMAN AUTH (LOGIN / REGISTER) ============ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-page">
+    <div class="page-holes">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="margin-rule"></div>
+
+    <header class="auth-header">
+      <p class="eyebrow">buku rencana &mdash; jilid 01</p>
+      <h1 class="logo">Study<em>Flow</em></h1>
+      <p class="tagline">Tempat menulis rencana belajar, sebelum hari itu datang.</p>
+    </header>
+
+    <div class="auth-tabs" role="tablist">
+      <button type="button" class="auth-tab is-active" data-tab="login" role="tab">Masuk</button>
+      <button type="button" class="auth-tab" data-tab="register" role="tab">Daftar Baru</button>
+    </div>
+
+    <!-- FORM LOGIN -->
+    <form id="login-form" class="auth-form" novalidate>
+      <label class="field">
+        <span>Alamat email</span>
+        <input type="email" name="email" required autocomplete="email" placeholder="kamu@contoh.com">
+      </label>
+      <label class="field">
+        <span>Kata sandi</span>
+        <input type="password" name="password" required autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+      </label>
+      <button type="submit" class="btn btn-ink btn-block">Buka buku rencana</button>
+    </form>
+
+    <!-- FORM REGISTER -->
+    <form id="register-form" class="auth-form is-hidden" novalidate>
+      <label class="field">
+        <span>Nama</span>
+        <input type="text" name="name" required autocomplete="name" placeholder="Nama kamu">
+      </label>
+      <label class="field">
+        <span>Alamat email</span>
+        <input type="email" name="email" required autocomplete="email" placeholder="kamu@contoh.com">
+      </label>
+      <label class="field">
+        <span>Kata sandi</span>
+        <input type="password" name="password" required autocomplete="new-password" minlength="8" placeholder="Minimal 8 karakter">
+      </label>
+      <label class="field">
+        <span>Ulangi kata sandi</span>
+        <input type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Sama seperti di atas">
+      </label>
+      <button type="submit" class="btn btn-ink btn-block">Mulai buku baru</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ HALAMAN APLIKASI (SETELAH LOGIN) ============ -->
+<div id="app-screen" class="app-screen is-hidden">
+  <div class="notebook">
+    <div class="page-holes page-holes--tall">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="margin-rule margin-rule--tall"></div>
+
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">buku rencana milik</p>
+        <h1 class="logo logo--sm">Study<em>Flow</em></h1>
+      </div>
+      <div class="app-header-right">
+        <span id="user-name" class="user-chip">&mdash;</span>
+        <button id="logout-btn" type="button" class="btn btn-ghost btn-sm">Tutup buku</button>
+      </div>
+    </header>
+
+    <div class="app-grid">
+
+      <!-- === KOLOM KIRI: MATA PELAJARAN === -->
+      <section class="panel panel--subjects">
+        <div class="panel-head">
+          <h2>Rak Mata Pelajaran</h2>
+          <button id="add-subject-toggle" type="button" class="btn btn-mustard btn-sm">+ Tambah</button>
+        </div>
+
+        <form id="subject-form" class="inline-form is-hidden">
+          <input type="hidden" name="id">
+          <label class="field field--tight">
+            <span>Nama pelajaran</span>
+            <input type="text" name="name" required placeholder="mis. Matematika">
+          </label>
+          <label class="field field--tight">
+            <span>Catatan singkat</span>
+            <input type="text" name="description" placeholder="opsional">
+          </label>
+          <div class="inline-form-actions">
+            <button type="submit" class="btn btn-ink btn-sm">Simpan</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-cancel-subject>Batal</button>
+          </div>
+        </form>
+
+        <ul id="subject-list" class="subject-list"></ul>
+        <p id="subject-empty" class="empty-note is-hidden">Rak masih kosong. Tulis mata pelajaran pertamamu.</p>
+      </section>
+
+      <!-- === KOLOM KANAN: JADWAL BELAJAR === -->
+      <section class="panel panel--schedules">
+        <div class="panel-head">
+          <h2>Jadwal Belajar</h2>
+          <button id="add-schedule-toggle" type="button" class="btn btn-mustard btn-sm">+ Tulis jadwal</button>
+        </div>
+
+        <form id="schedule-form" class="inline-form is-hidden">
+          <input type="hidden" name="id">
+          <label class="field field--tight">
+            <span>Judul</span>
+            <input type="text" name="title" required placeholder="mis. Latihan soal integral">
+          </label>
+          <label class="field field--tight">
+            <span>Mata pelajaran</span>
+            <select name="subject_id" required></select>
+          </label>
+          <div class="field-row">
+            <label class="field field--tight">
+              <span>Tanggal</span>
+              <input type="date" name="study_date" required>
+            </label>
+            <label class="field field--tight">
+              <span>Mulai</span>
+              <input type="time" name="start_time" required>
+            </label>
+            <label class="field field--tight">
+              <span>Selesai</span>
+              <input type="time" name="end_time" required>
+            </label>
+          </div>
+          <label class="field field--tight">
+            <span>Status</span>
+            <select name="status">
+              <option value="planned">Direncanakan</option>
+              <option value="in_progress">Sedang berjalan</option>
+              <option value="done">Selesai</option>
+            </select>
+          </label>
+          <label class="field field--tight">
+            <span>Catatan</span>
+            <input type="text" name="notes" placeholder="opsional">
+          </label>
+          <div class="inline-form-actions">
+            <button type="submit" class="btn btn-ink btn-sm">Simpan jadwal</button>
+            <button type="button" class="btn btn-ghost btn-sm" data-cancel-schedule>Batal</button>
+          </div>
+        </form>
+
+        <div id="schedule-list" class="schedule-list"></div>
+        <p id="schedule-empty" class="empty-note is-hidden">Belum ada jadwal tertulis di halaman ini.</p>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

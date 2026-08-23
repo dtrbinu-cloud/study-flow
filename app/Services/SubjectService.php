@@ -6,6 +6,7 @@ use App\Models\Subject;
 use App\Models\User;
 use App\Repositories\SubjectRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class SubjectService
 {
@@ -20,19 +21,24 @@ class SubjectService
 
     public function create(User $user, array $data): Subject
     {
-        return $this->subjectRepository->create($user, $data);
+        $subject = $this->subjectRepository->create($user, $data);
+        Cache::forget("subjects:user:{$user->id}");
+        return $subject;
     }
 
     public function update(User $user, Subject $subject, array $data): Subject
     {
         $this->authorizeOwnership($user, $subject);
-        return $this->subjectRepository->update($subject, $data);
+        $updated = $this->subjectRepository->update($subject, $data);
+        Cache::forget("subjects:user:{$user->id}");
+        return $updated;
     }
 
     public function delete(User $user, Subject $subject): void
     {
         $this->authorizeOwnership($user, $subject);
         $this->subjectRepository->delete($subject);
+        Cache::forget("subjects:user:{$user->id}");
     }
 
     protected function authorizeOwnership(User $user, Subject $subject): void

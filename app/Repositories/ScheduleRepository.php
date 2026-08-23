@@ -5,16 +5,21 @@ namespace App\Repositories;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class ScheduleRepository
 {
     public function getAllByUser(User $user): Collection
     {
-        return $user->schedules()
-            ->with('subject')
-            ->orderBy('study_date')
-            ->orderBy('start_time')
-            ->get();
+        $cacheKey = "schedules:user:{$user->id}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($user) {
+            return $user->schedules()
+                ->with('subject')
+                ->orderBy('study_date')
+                ->orderBy('start_time')
+                ->get();
+        });
     }
 
     public function create(User $user, array $data): Schedule
@@ -35,4 +40,4 @@ class ScheduleRepository
     {
         $schedule->delete();
     }
-} 
+}
