@@ -1,4 +1,4 @@
-<h1 align="center">BE Pembelajaran Project</h1>
+<h1 align="center">BE Pembelajaran Project PKL</h1>
 <h1 align="center">📚 StudyFlow API</h1>
 <p align="center">
   Backend REST API untuk manajemen jadwal belajar, dibangun dengan Laravel & MySQL.
